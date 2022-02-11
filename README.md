@@ -10,4 +10,4 @@ Pour build la partie OCaml:\
 `dune build`
 
 Exécuter le code:\
-`dune exec`
+`dune exec` ou `dune exec chess`
