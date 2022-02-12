@@ -4,9 +4,12 @@ open Terrain
 let char_of_case c =
   match c with
   | Eau -> ' '
-  | Terrain -> '.'
-  | Obstacle -> '*'
+  | Sol -> '.'
+  | Arbre -> '*'
+  | Rocher -> '@'
   | Mur -> '#'
+  | Pont -> '='
+  | Camp -> '^'
 
 let gw,gh = 8, 13
 (* Bas de l'ecran de la carte *)
@@ -41,70 +44,3 @@ let main =
     let s = wait_next_event [Key_pressed] in
     if s.key = 'q' then raise Fin
   done
-
-
-
-
-
-
-
-
-
-
-
-let () = print_endline "Bonjour, Monde!"
-
-type Piece  = Bombardier | Cavalier | Bouclier | Unite | General | Officier | Lancier | Archer | Ouvrier | Souverain | Garde | Chambellan
-
-type cases = Eau | Sol of Piece option | Pont | Mur | Arbre | Rocher | Camp
-
-let creer_plateau_basique =
-  let t = Array.make_matrix 34 34 None in
-  
-  for i = 0 to Array.length t-1 do
-    for j = 0 to Array.length t-1 do
-      t.(i).(j) <- Some Sol None
-    done
-  done; 
- 
-  for i = 0 to 4 do
-    for j = 0 to 4-i do
-      t.(i).(j) <- None
-    done
-  done;
-  
-  t.(9).(15) <- Some Mur;
-  t.(9).(14) <- Some Mur;
-  t.(9).(13) <- Some Mur;
-  t.(9).(11) <- Some Mur;
-  t.(10).(10) <- Some Mur;
-  t.(11).(9) <- Some Mur;
-  t.(12).(8) <- Some Mur;
-  t.(13).(8) <- Some Mur;
-  t.(14).(8) <- Some Mur;
-  t.(15).(8) <- Some Mur;
-
-  for i = 0 to (Array.length t - 1)/2 do
-    for j = 0 to (Array.length t - 1)/2 do
-      t.(Array.length t-1-i).(j) <- t.(i).(j);
-      t.(i).(Array.length t-1-j) <- t.(i).(j);
-      t(Array.length t-1-i).(Array.length t-1-j) <- t.(i).(j)
-    done
-  done;
-
-
-let deplacements_possibles plateau_piece i j =
-  let l = [] in
-  match plateau_piece.(i).(j) with
-  |None -> l
-  |Bombardier |Archer |Unite -> (i+1,j)::(i-1::j)::(i,j+1)::(i,j-1)::l
-  |Cavalier -> for k = 1 to 4 do
-                     for m = 1 to 4 do
-                       (i-k,j)::(i-m,j)::(i+k,j)::(i+m,j)::(i-k,j-k)::(i-m,j-k)::(i+k,j-k)::(i+m,j-k)::(i-k,j+k)::(i-m,j+k)::(i+k,j+k)::(i+m,j+k)::(i-k,j-m)::(i-m,j-m)::(i+k,j-m)::(i+m,j-m)::(i-k,j+m)::(i-m,j+m)::(i+k,j+m)::(i+m,j+m)::(i,j+k)::(i,j-k)::(i,j+m)::(i,j-m)::l
-                     done
-                   done
-  |Bouclier ->(i+2,j)::(i-2::j)::(i,j+2)::(i,j-2)::l
-  |Lancier -> (i+1,j+2)::(i+1::j-2)::(i-1,j+2)::(i-1,j-2)::l
-  |General |Officier |Garde -> (i+3,j)::(i,j+3)::(i-3,j)::(i,j-3)::(i+2;j+2)::(i-2,j-2)::(i-2,j+2)::(i+2,j-2)::l
-  |Chambellan -> (i+3;j+3)::(i-3,j-3)::(i-3,j+3)::(i+3,j-3)::l
-  |Ouvrier |Souverain -> (i+1,j)::(i-1::j)::(i,j+1)::(i,j-1)::(i+1;j+1)::(i-1,j-1)::(i-1,j+1)::(i+1,j-1)::l

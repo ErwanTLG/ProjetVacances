@@ -13,29 +13,31 @@ let genere_terrain (x, y) seed =
       let r = Random.int 100 in
       if r < freq_eau then
         t.(i).(j) <- Eau
-      else if r < freq_arbre then
+      else if r < freq_eau + freq_arbre then
         t.(i).(j) <- Arbre
-      else if r < freq_rocher then
+      else if r < freq_eau + freq_arbre + freq_rocher then
         t.(i).(j) <- Rocher
       else
-        t.(i).(j) <- Terrain
+        t.(i).(j) <- Sol
     done
   done;
-  t.(9).(15) <- Some Mur;
-  t.(9).(14) <- Some Mur;
-  t.(9).(13) <- Some Mur;
-  t.(9).(11) <- Some Mur;
-  t.(10).(10) <- Some Mur;
-  t.(11).(9) <- Some Mur;
-  t.(12).(8) <- Some Mur;
-  t.(13).(8) <- Some Mur;
-  t.(14).(8) <- Some Mur;
-  t.(15).(8) <- Some Mur;
-  for i = 0 to (Array.length t - 1)/2 do
-    for j = 0 to (Array.length t - 1)/2 do
-      t.(Array.length t-1-i).(j) <- t.(i).(j);
-      t.(i).(Array.length t-1-j) <- t.(i).(j);
-      t(Array.length t-1-i).(Array.length t-1-j) <- t.(i).(j)
+  t.(9).(15) <- Mur;
+  t.(9).(14) <- Mur;
+  t.(9).(13) <- Mur;
+  t.(9).(11) <- Mur;
+  t.(10).(10) <- Mur;
+  t.(11).(9) <- Mur;
+  t.(12).(8) <- Mur;
+  t.(13).(8) <- Mur;
+  t.(14).(8) <- Mur;
+  t.(15).(8) <- Mur;
+  for i = 0 to (Array.length t - 1) / 2 do
+    for j = 0 to (Array.length t - 1) / 2 do
+      if t.(i).(j) = Mur then begin
+        t.(Array.length t - 1 - i).(j) <- t.(i).(j);
+        t.(i).(Array.length t - 1 - j) <- t.(i).(j);
+        t.(Array.length t - 1 - i).(Array.length t - 1 - j) <- t.(i).(j)
+      end
     done
   done;
   t
@@ -47,9 +49,12 @@ let affiche_terrain t =
     for j = 0 to Array.length t.(0) - 1 do
       match t.(i).(j) with
       | Eau -> printf " "
-      | Terrain -> printf "."
-      | Obstacle -> printf "*"
+      | Sol -> printf "."
+      | Arbre -> printf "*"
+      | Rocher -> printf "@"
       | Mur -> printf "#"
+      | Pont -> printf "="
+      | Camp -> printf "^"
     done;
     printf "\n"
   done;
