@@ -21,6 +21,7 @@ let genere_terrain (x, y) seed =
         t.(i).(j) <- Sol
     done
   done;
+  (* place le rempart *)
   t.(9).(15) <- Mur;
   t.(9).(14) <- Mur;
   t.(9).(13) <- Mur;
@@ -31,6 +32,7 @@ let genere_terrain (x, y) seed =
   t.(13).(8) <- Mur;
   t.(14).(8) <- Mur;
   t.(15).(8) <- Mur;
+  (* fait la symétrie du rempart *)
   for i = 0 to (Array.length t - 1) / 2 do
     for j = 0 to (Array.length t - 1) / 2 do
       if t.(i).(j) = Mur then begin
@@ -42,20 +44,3 @@ let genere_terrain (x, y) seed =
   done;
   t
 
-(* fonction de test *)
-let affiche_terrain t =
-  let open Printf in
-  for i = 0 to Array.length t - 1 do
-    for j = 0 to Array.length t.(0) - 1 do
-      match t.(i).(j) with
-      | Eau -> printf " "
-      | Sol -> printf "."
-      | Arbre -> printf "*"
-      | Rocher -> printf "@"
-      | Mur -> printf "#"
-      | Pont -> printf "="
-      | Camp -> printf "^"
-    done;
-    printf "\n"
-  done;
-  flush stdout
