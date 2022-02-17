@@ -12,6 +12,13 @@ let char_of_case c =
   | Pont -> '='
   | Camp -> '^'
 
+let deplacement_valide p mouv = 
+  match mouv with
+  |(i,j)-> if deplacement_existant p i j (deplacements_possibles i j )
+           then p.(i).(j) <> Eau || p.(i).(j) <> Mur || p.(i).(j) <> Arbre || p.(i).(j) <> Rocher
+           else false
+
+
 let gw,gh = 8, 13
 (* Bas de l'ecran de la carte *)
 (* Taille de l'ecran *)
@@ -68,7 +75,7 @@ let main =
       done
     done;
     
-    (* TODO ici il faudrait dessiner les pièces par-dessus le terrain *)
+    (*J'allais faire le dessin des pièce mais je sais pas combien il y a de pixel par cases *)
 
     (* dessine un rectangle rouge autour de la case de l'unité selectionnée *)
     (* je ne sais pas pourquoi, mais si on écrit ce match après le prochain, rien ne marche. CA M'A PRIS QUASI 1H A TROUVER CE BUG J'EN PEUX PLUS *)
@@ -84,4 +91,14 @@ let main =
     (match !piece_selectionnee with
     | None -> if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
     | Some pc -> if pc.x = m_x && pc.y = m_y then piece_selectionnee := None);
+  
+    (*J'ai essayé une fonction pour déplacer les pièces mais je sais pas quoi mettre dans le None *)
+   (*match !piece_selectionnee with
+    |None -> ()
+    |Some pc -> wait_next_event [Button_down];
+                let m_x, m_y = to_grid_coords(status.mouse_x, status.mouse_y) in
+                if deplacement_valide t (m_x, m_y) 
+                then deplace !piece_selectionnee m_x m_y*)
   done
+
+ 
