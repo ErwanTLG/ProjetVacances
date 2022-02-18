@@ -59,19 +59,40 @@ let appartient_joueur_actif x y =
   | None -> false
   | Some pc -> pc.attaquant = !tour_attaquant
 
+let help = "chess [-ia <difficulté : int>] [-ia_def <bool>]"
+let diff = ref 0
+let ia = ref false
+let ia_def = ref true (* par défaut, l'ia joue en tant que défenseur *)
+
+let set_ia_def b =
+  ia_def := b
+
+let handle_ia_arg i =
+  if i <= 0 then failwith "Le niveau de difficulté de l'ia doit être un entier strictement positif.";
+  diff := i;
+  ia := true
+
+let anon_fun _ =
+  failwith "Erreur: arguments incorrects."
+
+let speclist = [("-ia", Arg.Int handle_ia_arg, "Active l'ia avec un niveau de difficulté"); 
+("-ia_def", Arg.Bool set_ia_def, "Précise si l'ia joue en tant que défenseur ou non. (default: true)")]
+
 let main =
+  Arg.parse speclist anon_fun help;
+  
   (* TODO supprimer la ligne qui suit, juste pour le test*)
   pieces.(0).(0) <- Some {t = Archer; x = 0; y = 0; attaquant = true};
   open_graph (Printf.sprintf " %dx%d" (16+tw*gw) (50+th*gh));
   set_window_title "Projet Vacances";
-  let t = genere_terrain 1234 in
+  genere_terrain 1234;
   while true do
     
     (* dessine le terrain *)
     set_color black;
-    for i = 0 to Array.length t - 1 do
-      for j = 0 to Array.length t.(0) - 1 do
-        putchar white black i j (char_of_case t.(i).(j))
+    for i = 0 to Array.length terrain - 1 do
+      for j = 0 to Array.length terrain.(0) - 1 do
+        putchar white black i j (char_of_case terrain.(i).(j))
       done
     done;
     

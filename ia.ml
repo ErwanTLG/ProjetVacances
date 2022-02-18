@@ -1,4 +1,5 @@
 open Pieces
+open Terrain
 
 let dim = Array.length pieces.(0), Array.length pieces
 
@@ -7,8 +8,10 @@ let dim = Array.length pieces.(0), Array.length pieces
 let est_valide tour_att (x, y) =
   if x >= 0 && x < fst dim && y >= 0 && y < snd dim then
     match pieces.(x).(y) with
-    | None -> true
     | Some p -> p.attaquant <> tour_att
+    | None -> match terrain.(x).(y) with
+      | Sol | Pont -> true
+      | _ -> false
   else false
 
 let coups_possibles tour_att : ((int * int) * (int * int)) list =
