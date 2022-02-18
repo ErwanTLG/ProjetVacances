@@ -1,12 +1,11 @@
 open Pieces
 open Terrain
-
-let dim = Array.length pieces.(0), Array.length pieces
+open Params
 
 (* vérifie s'il est possible de déplacer une pièce aux coordonnées x, y *)
 (* tour_att indique si c'est le tour de l'attaquant *)
 let est_valide tour_att (x, y) =
-  if x >= 0 && x < fst dim && y >= 0 && y < snd dim then
+  if x >= 0 && x < fst dimensions && y >= 0 && y < snd dimensions then
     match pieces.(x).(y) with
     | Some p -> p.attaquant <> tour_att
     | None -> match terrain.(x).(y) with
@@ -94,7 +93,7 @@ let rec cherche_coup_opti tour_att p prof alpha beta =
   	with Stop (x, c) -> x, c
   end
 
-let joue tour_att =
+let joue tour_att diff =
   let evaluation = evalue_position tour_att pieces in
-  let _, coup = cherche_coup_opti tour_att pieces 2 (-evaluation) evaluation in
+  let _, coup = cherche_coup_opti tour_att pieces diff (-evaluation) evaluation in
   joue_coup pieces coup

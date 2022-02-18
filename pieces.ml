@@ -30,6 +30,3 @@ let rec deplacement_existant p i j l =
   match l with
   |[] -> false
   |t::q -> if t = (i,j) then true else deplacement_existant p i j q
-
-
-

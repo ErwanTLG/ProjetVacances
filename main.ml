@@ -12,10 +12,10 @@ let char_of_case c =
   | Pont -> '='
   | Camp -> '^'
 
-let deplacement_valide p mouv = 
+let deplacement_valide mouv = 
   match mouv with
-  |(i,j)-> if deplacement_existant p i j (deplacements_possibles i j )
-           then p.(i).(j) <> Eau || p.(i).(j) <> Mur || p.(i).(j) <> Arbre || p.(i).(j) <> Rocher
+  |(i,j)-> if deplacement_existant terrain i j (deplacements_possibles i j )
+           then terrain.(i).(j) <> Eau || terrain.(i).(j) <> Mur || terrain.(i).(j) <> Arbre || terrain.(i).(j) <> Rocher
            else false
 
 
@@ -64,10 +64,6 @@ let appartient_joueur_actif x y =
   | None -> false
   | Some pc -> pc.attaquant = !tour_attaquant
 
-let commence_nouveau_tour () =
-  piece_selectionnee := None;
-  tour_attaquant := not !tour_attaquant
-
 (* TODO compléter cette fonction *)
 let check_win () =
   false
@@ -90,6 +86,15 @@ let anon_fun _ =
 
 let speclist = [("-ia", Arg.Int handle_ia_arg, "Active l'ia avec un niveau de difficulté"); 
 ("-ia_def", Arg.Bool set_ia_def, "Précise si l'ia joue en tant que défenseur ou non. (default: true)")]
+
+let rec commence_nouveau_tour () =
+  piece_selectionnee := None;
+  tour_attaquant := not !tour_attaquant;
+  if !ia then begin
+    if !ia_def = not !tour_attaquant then
+    Ia.joue !tour_attaquant !diff;
+    commence_nouveau_tour ()
+  end
 
 let main =
   Arg.parse speclist anon_fun help;
@@ -124,11 +129,15 @@ let main =
     try
       (match !piece_selectionnee with
       | None -> if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
-      | Some pc -> if pc.x = m_x && pc.y = m_y then piece_selectionnee := None 
+      | Some pc -> 
+        (* si on clique sur la pièce sélectionnée, ça la déselectionne *)
+        if pc.x = m_x && pc.y = m_y then piece_selectionnee := None 
+        (* si on clique sur une autre pièce qui nous appartient, ça la sélectionne *)
         else if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
-        else if deplacement_valide t (m_x, m_y) then begin 
+        (* on se déplace si on clique à un endroit valide *)
+        else if deplacement_valide (m_x, m_y) then begin 
           deplace pc m_x m_y;
-          if pieces.(m_x).(m_y) <> None then raise FinTour
+          raise FinTour
         end);
       with FinTour -> begin
         if check_win () then raise (Fin (annonce_victoire ()));
