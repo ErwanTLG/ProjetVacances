@@ -64,7 +64,7 @@ let main =
   pieces.(0).(0) <- Some {t = Archer; x = 0; y = 0; attaquant = true};
   open_graph (Printf.sprintf " %dx%d" (16+tw*gw) (50+th*gh));
   set_window_title "Projet Vacances";
-  let t = genere_terrain (32, 32) 1234 in
+  let t = genere_terrain 1234 in
   while true do
     
     (* dessine le terrain *)
@@ -100,5 +100,3 @@ let main =
                 if deplacement_valide t (m_x, m_y) 
                 then deplace !piece_selectionnee m_x m_y*)
   done
-
- 
