@@ -46,11 +46,16 @@ let to_grid_coords (x, y) =
 let est_valide (i, j) t =
   i >= 0 && j >= 0 && i < Array.length t && j < Array.length t.(0)
 
-exception Fin
+exception Fin of string
+exception FinTour
 
 let piece_selectionnee : piece option ref = ref None
 
 let tour_attaquant = ref true (* c'est l'attaquant qui joue en premier *)
+
+let annonce_victoire () =
+  if !tour_attaquant then "Victoire de l'attaquant !"
+  else "Victoire du défenseur !"
 
 (* vérifie si la piece aux coordonnées x, y appartient au joueur actif *)
 let appartient_joueur_actif x y =
@@ -58,6 +63,14 @@ let appartient_joueur_actif x y =
   match p with
   | None -> false
   | Some pc -> pc.attaquant = !tour_attaquant
+
+let commence_nouveau_tour () =
+  piece_selectionnee := None;
+  tour_attaquant := not !tour_attaquant
+
+(* TODO compléter cette fonction *)
+let check_win () =
+  false
 
 let main =
   (* TODO supprimer la ligne qui suit, juste pour le test*)
@@ -87,16 +100,17 @@ let main =
     let status = wait_next_event [Button_down] in
     let m_x, m_y = to_grid_coords(status.mouse_x, status.mouse_y) in
 
-    (* si on clique sur l'unité sélectionnée, ça la déselectionne *)
-    (match !piece_selectionnee with
-    | None -> if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
-    | Some pc -> if pc.x = m_x && pc.y = m_y then piece_selectionnee := None);
-  
-    (*J'ai essayé une fonction pour déplacer les pièces mais je sais pas quoi mettre dans le None *)
-   (*match !piece_selectionnee with
-    |None -> ()
-    |Some pc -> wait_next_event [Button_down];
-                let m_x, m_y = to_grid_coords(status.mouse_x, status.mouse_y) in
-                if deplacement_valide t (m_x, m_y) 
-                then deplace !piece_selectionnee m_x m_y*)
+    try
+      (match !piece_selectionnee with
+      | None -> if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
+      | Some pc -> if pc.x = m_x && pc.y = m_y then piece_selectionnee := None 
+        else if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
+        else if deplacement_valide t (m_x, m_y) then begin 
+          deplace pc m_x m_y;
+          if pieces.(m_x).(m_y) <> None then raise FinTour
+        end);
+      with FinTour -> begin
+        if check_win () then raise (Fin (annonce_victoire ()));
+        commence_nouveau_tour ()
+      end
   done
