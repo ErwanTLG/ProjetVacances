@@ -12,10 +12,10 @@ let char_of_case c =
   | Pont -> '='
   | Camp -> '^'
 
-let deplacement_valide p mouv = 
+let deplacement_valide mouv = 
   match mouv with
-  |(i,j)-> if deplacement_existant p i j (deplacements_possibles i j )
-           then p.(i).(j) <> Eau || p.(i).(j) <> Mur || p.(i).(j) <> Arbre || p.(i).(j) <> Rocher
+  |(i,j)-> if deplacement_existant terrain i j (deplacements_possibles i j )
+           then terrain.(i).(j) <> Eau || terrain.(i).(j) <> Mur || terrain.(i).(j) <> Arbre || terrain.(i).(j) <> Rocher
            else false
 
 
@@ -46,11 +46,16 @@ let to_grid_coords (x, y) =
 let est_valide (i, j) t =
   i >= 0 && j >= 0 && i < Array.length t && j < Array.length t.(0)
 
-exception Fin
+exception Fin of string
+exception FinTour
 
 let piece_selectionnee : piece option ref = ref None
 
 let tour_attaquant = ref true (* c'est l'attaquant qui joue en premier *)
+
+let annonce_victoire () =
+  if !tour_attaquant then "Victoire de l'attaquant !"
+  else "Victoire du défenseur !"
 
 (* vérifie si la piece aux coordonnées x, y appartient au joueur actif *)
 let appartient_joueur_actif x y =
@@ -58,6 +63,7 @@ let appartient_joueur_actif x y =
   match p with
   | None -> false
   | Some pc -> pc.attaquant = !tour_attaquant
+
 
 
 let dessine_piece i j p =
@@ -76,19 +82,54 @@ let dessine_piece i j p =
   |Souverain -> moveto (i*gw+1) (j*gh+3); lineto (i*gw+6) (j*gh+3); moveto (i*gw+6) (j*gh+6); lineto (i*gw+1) (j*gh+6); moveto (i*gw+1) (j*gh+9); lineto (i*gw+6) (j*gh+9)
   
 
+(* TODO compléter cette fonction *)
+let check_win () =
+  false
+
+let help = "chess [-ia <difficulté : int>] [-ia_def <bool>]"
+let diff = ref 0
+let ia = ref false
+let ia_def = ref true (* par défaut, l'ia joue en tant que défenseur *)
+
+let set_ia_def b =
+  ia_def := b
+
+let handle_ia_arg i =
+  if i <= 0 then failwith "Le niveau de difficulté de l'ia doit être un entier strictement positif.";
+  diff := i;
+  ia := true
+
+let anon_fun _ =
+  failwith "Erreur: arguments incorrects."
+
+let speclist = [("-ia", Arg.Int handle_ia_arg, "Active l'ia avec un niveau de difficulté"); 
+("-ia_def", Arg.Bool set_ia_def, "Précise si l'ia joue en tant que défenseur ou non. (default: true)")]
+
+let rec commence_nouveau_tour () =
+  piece_selectionnee := None;
+  tour_attaquant := not !tour_attaquant;
+  if !ia then begin
+    if !ia_def = not !tour_attaquant then
+    Ia.joue !tour_attaquant !diff;
+    commence_nouveau_tour ()
+  end
+
+
 let main =
+  Arg.parse speclist anon_fun help;
+  
   (* TODO supprimer la ligne qui suit, juste pour le test*)
   pieces.(0).(0) <- Some {t = Archer; x = 0; y = 0; attaquant = true};
   open_graph (Printf.sprintf " %dx%d" (16+tw*gw) (50+th*gh));
   set_window_title "Projet Vacances";
-  let t = genere_terrain (32, 32) 1234 in
+  genere_terrain 1234;
   while true do
     
     (* dessine le terrain *)
     set_color black;
-    for i = 0 to Array.length t - 1 do
-      for j = 0 to Array.length t.(0) - 1 do
-        putchar white black i j (char_of_case t.(i).(j))
+    for i = 0 to Array.length terrain - 1 do
+      for j = 0 to Array.length terrain.(0) - 1 do
+        putchar white black i j (char_of_case terrain.(i).(j))
       done
     done;
     
@@ -104,18 +145,21 @@ let main =
     let status = wait_next_event [Button_down] in
     let m_x, m_y = to_grid_coords(status.mouse_x, status.mouse_y) in
 
-    (* si on clique sur l'unité sélectionnée, ça la déselectionne *)
-    (match !piece_selectionnee with
-    | None -> if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
-    | Some pc -> if pc.x = m_x && pc.y = m_y then piece_selectionnee := None);
-  
-    (*J'ai essayé une fonction pour déplacer les pièces mais je sais pas quoi mettre dans le None *)
-   (*match !piece_selectionnee with
-    |None -> ()
-    |Some pc -> wait_next_event [Button_down];
-                let m_x, m_y = to_grid_coords(status.mouse_x, status.mouse_y) in
-                if deplacement_valide t (m_x, m_y) 
-                then deplace !piece_selectionnee m_x m_y*)
+    try
+      (match !piece_selectionnee with
+      | None -> if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
+      | Some pc -> 
+        (* si on clique sur la pièce sélectionnée, ça la déselectionne *)
+        if pc.x = m_x && pc.y = m_y then piece_selectionnee := None 
+        (* si on clique sur une autre pièce qui nous appartient, ça la sélectionne *)
+        else if est_valide (m_x, m_y) pieces && appartient_joueur_actif m_x m_y then piece_selectionnee := pieces.(m_x).(m_y)
+        (* on se déplace si on clique à un endroit valide *)
+        else if deplacement_valide (m_x, m_y) then begin 
+          deplace pc m_x m_y;
+          raise FinTour
+        end);
+      with FinTour -> begin
+        if check_win () then raise (Fin (annonce_victoire ()));
+        commence_nouveau_tour ()
+      end
   done
-
- 

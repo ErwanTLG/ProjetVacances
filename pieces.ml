@@ -1,8 +1,10 @@
+open Params
+
 type t_piece = Bombardier | Cavalier | Bouclier | Unite | General | Officier | Lancier | Archer | Ouvrier | Souverain | Garde | Chambellan
 type piece = {t: t_piece; x: int; y: int; attaquant: bool}
 
 (* ne pas oublier de reporter les dimensions du jeu ici lorsqu'on les change *)
-let pieces : piece option array array = Array.make_matrix 32 32 None
+let pieces : piece option array array = Array.make_matrix (fst dimensions) (snd dimensions) None
 
 let deplacements_possibles i j =
   let aux t =
@@ -28,6 +30,3 @@ let rec deplacement_existant p i j l =
   match l with
   |[] -> false
   |t::q -> if t = (i,j) then true else deplacement_existant p i j q
-
-
-
