@@ -59,6 +59,23 @@ let appartient_joueur_actif x y =
   | None -> false
   | Some pc -> pc.attaquant = !tour_attaquant
 
+
+let dessine_piece i j p =
+  match p.(i).(j) with
+  |Unite -> moveto (i*gw+3) (j*gh+1); lineto (i*gw+3) (j*gh+11); moveto (i*gw+4) (j*gh+11); lineto (i*gw+4) (j*gh+1)
+  |Officier -> moveto (i*gw+2) (j*gh+1); lineto (i*gw+2) (j*gh+11); moveto (i*gw+5) (j*gh+11); lineto (i*gw+5) (j*gh+1)
+  |General -> moveto (i*gw+1) (j*gh+1); lineto (i*gw+1) (j*gh+11); moveto (i*gw+3) (j*gh+11); lineto (i*gw+3) (j*gh+1); moveto (i*gw+4) (j*gh+1); lineto (i*gw+4) (j*gh+11); moveto (i*gw+6) (j*gh+11); lineto (i*gw+6) (j*gh+1)
+  |Lancier -> moveto (i*gw+1) (j*gh+11); lineto (i*gw+6) (j*gh+1); lineto (i*gw+5) (j*gh+1); moveto (i*gw+6) (j*gh+1); lineto (i*gw+6) (j*gh+3)
+  |Cavalier -> moveto (i*gw+1) (j*gh+11); lineto (i*gw+1) (j*gh+1); lineto (i*gw+6) (j*gh+1); lineto (i*gw+6) (j*gh+11)
+  |Bombardier -> draw_rect (i*gw+3) (j*gh+10) 4 4; moveto (i*gw+4) (j*gh+7); lineto (i*gw+4) (j*gh+4)
+  |Archer -> moveto (i*gw+3) (j*gh+1); lineto (i*gw+3) (j*gh+12); lineto (i*gw+6) (j*gh+7); lineto (i*gw+3) (j*gh+1)
+  |Bouclier -> moveto (i*gw+4) (j*gh+11); lineto (i*gw+6) (j*gh+9); lineto (i*gw+6) (j*gh+1); lineto (i*gw+1) (j*gh+1); lineto (i*gw+1) (j*gh+9); lineto (i*gw+3) (j*gh+11)
+  |Ouvrier -> moveto (i*gw+4) (j*gh+11); lineto (i*gw+4) (j*gh+6); draw_rect (i*gw+1) (j*gh+6) 6 4
+  |Chambellan -> moveto (i*gw+1) (j*gh+6); lineto (i*gw+6) (j*gh+6)
+  |Garde -> moveto (i*gw+1) (j*gh+4);lineto (i*gw+6) (j*gh+4);moveto (i*gw+6) (j*gh+8); lineto (i*gw+1) (j*gh+8)
+  |Souverain -> moveto (i*gw+1) (j*gh+3); lineto (i*gw+6) (j*gh+3); moveto (i*gw+6) (j*gh+6); lineto (i*gw+1) (j*gh+6); moveto (i*gw+1) (j*gh+9); lineto (i*gw+6) (j*gh+9)
+  
+
 let main =
   (* TODO supprimer la ligne qui suit, juste pour le test*)
   pieces.(0).(0) <- Some {t = Archer; x = 0; y = 0; attaquant = true};
@@ -75,7 +92,7 @@ let main =
       done
     done;
     
-    (*J'allais faire le dessin des pièce mais je sais pas combien il y a de pixel par cases *)
+    (*J'ai fait une fonction dessine_piece au dessus *)
 
     (* dessine un rectangle rouge autour de la case de l'unité selectionnée *)
     (* je ne sais pas pourquoi, mais si on écrit ce match après le prochain, rien ne marche. CA M'A PRIS QUASI 1H A TROUVER CE BUG J'EN PEUX PLUS *)
