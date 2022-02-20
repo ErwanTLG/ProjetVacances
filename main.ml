@@ -64,27 +64,28 @@ let appartient_joueur_actif x y =
   | None -> false
   | Some pc -> pc.attaquant = !tour_attaquant
 
-
-
-let dessine_piece i j p =
-  match p.(i).(j) with
-  |Unite -> moveto (i*gw+3) (j*gh+1); lineto (i*gw+3) (j*gh+11); moveto (i*gw+4) (j*gh+11); lineto (i*gw+4) (j*gh+1)
-  |Officier -> moveto (i*gw+2) (j*gh+1); lineto (i*gw+2) (j*gh+11); moveto (i*gw+5) (j*gh+11); lineto (i*gw+5) (j*gh+1)
-  |General -> moveto (i*gw+1) (j*gh+1); lineto (i*gw+1) (j*gh+11); moveto (i*gw+3) (j*gh+11); lineto (i*gw+3) (j*gh+1); moveto (i*gw+4) (j*gh+1); lineto (i*gw+4) (j*gh+11); moveto (i*gw+6) (j*gh+11); lineto (i*gw+6) (j*gh+1)
-  |Lancier -> moveto (i*gw+1) (j*gh+11); lineto (i*gw+6) (j*gh+1); lineto (i*gw+5) (j*gh+1); moveto (i*gw+6) (j*gh+1); lineto (i*gw+6) (j*gh+3)
-  |Cavalier -> moveto (i*gw+1) (j*gh+11); lineto (i*gw+1) (j*gh+1); lineto (i*gw+6) (j*gh+1); lineto (i*gw+6) (j*gh+11)
-  |Bombardier -> draw_rect (i*gw+3) (j*gh+10) 4 4; moveto (i*gw+4) (j*gh+7); lineto (i*gw+4) (j*gh+4)
-  |Archer -> moveto (i*gw+3) (j*gh+1); lineto (i*gw+3) (j*gh+12); lineto (i*gw+6) (j*gh+7); lineto (i*gw+3) (j*gh+1)
-  |Bouclier -> moveto (i*gw+4) (j*gh+11); lineto (i*gw+6) (j*gh+9); lineto (i*gw+6) (j*gh+1); lineto (i*gw+1) (j*gh+1); lineto (i*gw+1) (j*gh+9); lineto (i*gw+3) (j*gh+11)
-  |Ouvrier -> moveto (i*gw+4) (j*gh+11); lineto (i*gw+4) (j*gh+6); draw_rect (i*gw+1) (j*gh+6) 6 4
-  |Chambellan -> moveto (i*gw+1) (j*gh+6); lineto (i*gw+6) (j*gh+6)
-  |Garde -> moveto (i*gw+1) (j*gh+4);lineto (i*gw+6) (j*gh+4);moveto (i*gw+6) (j*gh+8); lineto (i*gw+1) (j*gh+8)
-  |Souverain -> moveto (i*gw+1) (j*gh+3); lineto (i*gw+6) (j*gh+3); moveto (i*gw+6) (j*gh+6); lineto (i*gw+1) (j*gh+6); moveto (i*gw+1) (j*gh+9); lineto (i*gw+6) (j*gh+9)
   
-
-(* TODO compléter cette fonction *)
-let check_win () =
-  false
+(*Il manque des conditions de victoire *)
+let check_win p_piece =
+  let flag_Gen = ref false in
+  let flag_Souv = ref false in
+  let count_attackers = ref 0 in
+  for i = 0 to Array.length p_piece -1 do
+    for j = 0 to Array.length p_piece.(0) -1 do
+      match p_piece.(i).(j) with
+      |None -> ()
+      |Some p -> if p.t = General
+                 then flag_Gen := true;
+                 if p.t = Souverain
+                 then flag_Souv := true;
+                 if p.attaquant = true
+                 then count_attackers := !count_attackers +1
+    done
+  done;
+  if !flag_Gen = false || !count_attackers <= 10 || !flag_Souv = false
+  then true
+  else false
+      
 
 let help = "chess [-ia <difficulté : int>] [-ia_def <bool>]"
 let diff = ref 0
@@ -159,7 +160,7 @@ let main =
           raise FinTour
         end);
       with FinTour -> begin
-        if check_win () then raise (Fin (annonce_victoire ()));
+        if check_win pieces then raise (Fin (annonce_victoire ()));
         commence_nouveau_tour ()
       end
   done
