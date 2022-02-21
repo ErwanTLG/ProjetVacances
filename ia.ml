@@ -1,6 +1,6 @@
 open Pieces
 open Terrain
-open Params
+open Utils
 
 (* vérifie s'il est possible de déplacer une pièce aux coordonnées x, y *)
 (* tour_att indique si c'est le tour de l'attaquant *)
