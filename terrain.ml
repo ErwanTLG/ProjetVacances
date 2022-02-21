@@ -1,21 +1,12 @@
-open Params
+open Utils
 
 type cases = Eau | Sol | Mur | Arbre | Rocher | Camp
 
-let char_of_case c =
-  match c with
-  | Eau -> ' '
-  | Sol -> '.'
-  | Arbre -> '*'
-  | Rocher -> '@'
-  | Mur -> '#'
-  | Camp -> '^'
+let terrain = Array.make_matrix (fst dimensions) (snd dimensions) Sol
 
 let freq_eau = 5
 let freq_arbre = 10
 let freq_rocher = 5
-
-let terrain = Array.make_matrix (fst dimensions) (snd dimensions) Sol
 
 (* génère aléatoirement un terrai de taille x * y en utilisant la graine seed *)
 let genere_terrain seed = 
@@ -37,7 +28,7 @@ let genere_terrain seed =
   (* place le rempart *)
   let positions_rempart = [(9, 15); (9, 14); (9, 13); (9, 11);
    (10, 10); (11, 9); (12, 8); (13, 8); (14, 8); (15, 8)] in
-  List.iter (fun (x, y) -> terrain.(x).(y) <- Mur) positions_rempart;
+  List.iter (fun (x, y) -> terrain.(x).(y) <- Mur) positions_rempart;  (* TODO changer x et y ici pour être cohérents avec le reste du code *)
   (* fait la symétrie du rempart *)
   let dim_y = Array.length terrain in
   for i = 0 to (dim_y - 1) / 2 do
@@ -49,3 +40,9 @@ let genere_terrain seed =
       end
     done
   done
+
+(** teste si une case accepte le déplacement *)
+let marchable x y =
+  match terrain.(y).(x) with
+  | Sol | Camp -> true
+  | _ -> false

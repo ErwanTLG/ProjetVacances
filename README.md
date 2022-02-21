@@ -1,5 +1,15 @@
 # Projet vacances hiver
 
+- Compiler le projet: `dune build`
+- Exécuter le jeu: `dune exec chess`
+> Arguments CLI (facultatifs) : 
+> - `-ia <difficulté : int>` active l'ia avec la difficulté sélectionnée (fonctionnalité en cours de development)
+> - `-ia_def <bool>` spécifie si l'ia joue en tant que défenseur (`true`) ou attaquant (`false`). Défaut : `true` 
+
+Erreurs connues :
+- IA non testée, sans doute complètement buggée
+- Déplacements pas tous légaux...
+
 ## Règles du jeu :
 
 - Le jeu se joue à deux joueurs, un attaquant et un défenseur.
