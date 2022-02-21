@@ -70,8 +70,3 @@ Les cases du terrain sont représentées à l'aide de simples caractères, chaqu
 | Arbre  |  `*`   |     [ ]     |         [x]         |
 | Rocher |  `@`   |     [ ]     |         [ ]         |
 |  Camp  |  `^`   |     [x]     |         [ ]         |
-
-# Partie programmation
-
-Tous les tableaux sont représentés sous forme de tableaux en lignes.
-Il y a actuellement de gros problèmes avec l'affichage des unités.
