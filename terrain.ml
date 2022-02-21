@@ -1,6 +1,15 @@
 open Params
 
-type cases = Eau | Sol | Pont | Mur | Arbre | Rocher | Camp
+type cases = Eau | Sol | Mur | Arbre | Rocher | Camp
+
+let char_of_case c =
+  match c with
+  | Eau -> ' '
+  | Sol -> '.'
+  | Arbre -> '*'
+  | Rocher -> '@'
+  | Mur -> '#'
+  | Camp -> '^'
 
 let freq_eau = 5
 let freq_arbre = 10

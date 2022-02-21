@@ -9,7 +9,7 @@ let est_valide tour_att (x, y) =
     match pieces.(x).(y) with
     | Some p -> p.attaquant <> tour_att
     | None -> match terrain.(x).(y) with
-      | Sol | Pont -> true
+      | Sol | Camp -> true
       | _ -> false
   else false
 
@@ -20,7 +20,7 @@ let coups_possibles tour_att : ((int * int) * (int * int)) list =
       match pc with
       | None -> ls
       | Some p ->
-        let depl = deplacements_possibles p.x p.y in
+        let depl = [] (*deplacements_possibles p.x p.y*) in
         let valides = List.fold_left (fun l d ->
           if est_valide tour_att d then ((p.x, p.y), d) :: l else l
       ) [] depl

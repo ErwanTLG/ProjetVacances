@@ -3,3 +3,6 @@ _build
 
 # IntelliJ intellisense
 .idea
+
+# Visual studio code
+.vscode
